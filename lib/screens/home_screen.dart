@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:potomo/screens/todo_form_screen.dart';
+import 'package:potomo/utils/str.dart';
 import 'package:potomo/widgets/potomo_appbar.dart';
 import 'package:potomo/widgets/task_card_style1.dart';
 import 'package:potomo/widgets/task_card_style2.dart';
@@ -25,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 
-  Widget _allTask() => Expanded(
+  Widget _otherTask() => Expanded(
     child: Container(
       padding: EdgeInsets.symmetric(horizontal: 25),
       child: GridView.count(
@@ -51,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           child: Column(
             children: <Widget>[
-              PotomoAppBar(title: "My Task", subtitle: "Ongoing task", subTitlePosition: SubTitlePosition.BELOW,),
+              PotomoAppBar(title: Str.HOME_TITLE, subtitle: Str.HOME_SUBTITLE, subTitlePosition: SubTitlePosition.BELOW,),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,14 +63,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       margin: EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Text("All Task", style: GoogleFonts.hindVadodara(
-                          textStyle: Theme.of(context).textTheme.headline5.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600
-                        )
-                      ),),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(Str.OTHER_TASK, style: GoogleFonts.hindVadodara(
+                              textStyle: Theme.of(context).textTheme.headline5.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600
+                            )
+                          ),),
+                          OutlineButton(
+                              onPressed: (){},
+                              child: Text(Str.MORE),
+                              textColor: Colors.red,
+                              borderSide: BorderSide(color: Colors.red),
+                          )
+                        ],
+                      ),
                     ),
-                    _allTask()
+                    _otherTask()
                   ],
                 ),
               )
@@ -76,7 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){},
+        onPressed: (){
+          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => TodoFormScreen()));
+        },
         child: Icon(Icons.add),
       ),
     );
