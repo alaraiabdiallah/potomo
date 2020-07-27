@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:potomo/models/sqlite_model.dart';
 import 'package:potomo/screens/todo_form_screen.dart';
 import 'package:potomo/utils/str.dart';
 import 'package:potomo/widgets/potomo_appbar.dart';
@@ -31,19 +32,37 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _otherTask() => Expanded(
     child: Container(
       padding: EdgeInsets.symmetric(horizontal: 25),
-      child: GridView.count(
-        physics: BouncingScrollPhysics(),
-        crossAxisCount: 2,
-        childAspectRatio: 0.7,
-        children: <Widget>[
-          TaskCardStyle2(title: "Design team meeting dawdia",dateString: "Dec 13th, 13:00", percentage: 10,),
-          TaskCardStyle2(title: "Cuci piring",dateString: "Dec 13th, 15:00", percentage: 90,),
-          TaskCardStyle2(title: "Design team meeting dawdia",dateString: "Dec 13th, 13:00", percentage: 10,),
-          TaskCardStyle2(title: "Cuci piring",dateString: "Dec 13th, 15:00", percentage: 90,),
-          TaskCardStyle2(title: "Design team meeting dawdia",dateString: "Dec 13th, 13:00", percentage: 10,),
-          TaskCardStyle2(title: "Cuci piring",dateString: "Dec 13th, 15:00", percentage: 90,),
-        ],
-      ),
+      child: FutureBuilder(
+        future: Task().select().toList(),
+        builder: (BuildContext context, AsyncSnapshot<List<Task>> snapshot){
+          if(snapshot.hasData){
+            return GridView.count(
+              physics: BouncingScrollPhysics(),
+              crossAxisCount: 2,
+              childAspectRatio: 0.7,
+              children: snapshot.data.map((e){
+                return TaskCardStyle2(
+                  title: e.title, 
+                  date: e.date, 
+                  time: e.time_do_at, 
+                  percentage: 0,
+                  onTap: (){
+                    Navigator.of(context).push(CupertinoPageRoute(builder: (context) => TodoFormScreen(task: e,viewMode: true,)));
+                  },
+                );
+              }).toList(),
+            );
+          }else if(snapshot.hasError){
+            return Center(
+              child: Text("Load Failed"),
+            );
+          }
+
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        
+      }),
     ),
   );
 

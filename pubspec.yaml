@@ -34,6 +34,8 @@ dependencies:
   intl: ^0.16.1
   sqfentity: ^1.2.3
   sqfentity_gen: ^1.2.3
+  http:
+  flutter_stetho: ^0.5.2
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_stetho/flutter_stetho.dart';
 import 'package:potomo/screens/home_screen.dart';
 
 void main() {
+  Stetho.initialize();
   runApp(MyApp());
 }
 

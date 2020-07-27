@@ -209,6 +209,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.8"
+  flutter_stetho:
+    dependency: "direct main"
+    description:
+      name: flutter_stetho
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -243,7 +250,7 @@ packages:
     source: hosted
     version: "0.14.0+3"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       url: "https://pub.dartlang.org"

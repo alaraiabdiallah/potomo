@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/str.dart';
+
 class TaskCardStyle1 extends StatelessWidget {
 
   final bool highlight;
@@ -67,7 +69,7 @@ class TaskCardStyle1 extends StatelessWidget {
                     children: <Widget>[
                       Icon(Icons.timer, color: _defaultTextColor(),),
                       SizedBox(width: 5,),
-                      Text("Timer", style: TextStyle(color: _defaultTextColor()),)
+                      Text(Str.TIMER, style: TextStyle(color: _defaultTextColor()),)
                     ],
                   ),
                 ),
@@ -77,7 +79,7 @@ class TaskCardStyle1 extends StatelessWidget {
                     children: <Widget>[
                       Icon(Icons.check, color: _defaultTextColor(),),
                       SizedBox(width: 5,),
-                      Text("Done", style: TextStyle(color: _defaultTextColor()),),
+                      Text(Str.DONE, style: TextStyle(color: _defaultTextColor()),),
                     ],
                   ),
                 )
