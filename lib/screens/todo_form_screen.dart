@@ -8,17 +8,12 @@ import 'package:potomo/utils/str.dart';
 import 'package:potomo/widgets/checklist_item.dart';
 
 import '../models/sqlite_model.dart';
-import '../models/sqlite_model.dart';
-import '../models/sqlite_model.dart';
-import '../models/sqlite_model.dart';
-import '../models/sqlite_model.dart';
-import '../models/sqlite_model.dart';
-import '../models/sqlite_model.dart';
 
 class TodoFormScreen extends StatefulWidget {
   final Task task;
   final bool viewMode;
-  const TodoFormScreen({Key key, this.task, this.viewMode = false}) : super(key: key);
+  final Function onChange;
+  const TodoFormScreen({Key key, this.task, this.viewMode = false, this.onChange}) : super(key: key);
   @override
   _TodoFormScreenState createState() => _TodoFormScreenState();
 }
@@ -273,6 +268,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
       await _onSaveTaskToDB();
       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(Str.SUCCESS_SAVE_TASK),));
       Navigator.of(context).pop();
+      widget.onChange();
     } catch (e) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red,));
     }
@@ -293,6 +289,20 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
         appBar: AppBar(
           title: Text(title),
           centerTitle: true,
+          actions: <Widget>[
+            if(_viewMode)...[
+              IconButton(
+                icon: Icon(_task.is_done? Icons.check_box:Icons.check_box_outline_blank, color: Colors.white,),
+                onPressed: () async{
+                  setState(() {
+                    _task.is_done = _task.is_done? false: true;
+                  });
+                  await _task.save();
+                  widget.onChange();
+                },
+              )
+            ]
+          ],
           bottom: TabBar(
             tabs: [
               Tab(text: Str.TASK,),

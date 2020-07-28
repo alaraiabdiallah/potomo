@@ -19,4 +19,5 @@ class Str{
   static final MORE = "More";
   static final TIMER = "Timer";
   static final DONE = "Done";
+  static final NO_TASK = "No Task";
 }

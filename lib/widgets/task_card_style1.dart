@@ -7,8 +7,11 @@ class TaskCardStyle1 extends StatelessWidget {
   final bool highlight;
   final String subTitle;
   final String title;
+  final Function onTap;
+  final Function onTimerPressed;
+  final Function onDonePressed;
 
-  const TaskCardStyle1({Key key, this.highlight = false, this.subTitle = "", this.title = ""}) : super(key: key);
+  const TaskCardStyle1({Key key, this.highlight = false, this.subTitle = "", this.title = "", this.onTap, this.onTimerPressed, this.onDonePressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,28 +37,29 @@ class TaskCardStyle1 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(
-            width: double.infinity,
-            height: 90,
-            decoration: BoxDecoration(
-                color: _backgroundColor(),
-                borderRadius: BorderRadius.circular(10)
-            ),
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    if(subTitle.isNotEmpty)...[
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              height: 90,
+              decoration: BoxDecoration(
+                  color: _backgroundColor(),
+                  borderRadius: BorderRadius.circular(10)
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
                       Text(subTitle, style: _subTitleStyle(),),
                       SizedBox(height: 3,),
+                      Text(title, style: _titleStyle(), maxLines: 2, overflow: TextOverflow.ellipsis)
                     ],
-                    Text(title, style: _titleStyle(), maxLines: 2, overflow: TextOverflow.ellipsis)
-                  ],
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
           Container(
@@ -64,7 +68,7 @@ class TaskCardStyle1 extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 GestureDetector(
-                  onTap: (){},
+                  onTap: onTimerPressed,
                   child: Row(
                     children: <Widget>[
                       Icon(Icons.timer, color: _defaultTextColor(),),
@@ -74,7 +78,7 @@ class TaskCardStyle1 extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: (){},
+                  onTap: onDonePressed,
                   child: Row(
                     children: <Widget>[
                       Icon(Icons.check, color: _defaultTextColor(),),

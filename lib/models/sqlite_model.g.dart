@@ -38,6 +38,8 @@ class TableTask extends SqfEntityTableBase {
           isNotNull: false, minValue: DateTime.parse('1900-01-01')),
       SqfEntityFieldBase('time_do_at', DbType.datetime,
           isNotNull: false, minValue: DateTime.parse('1900-01-01')),
+      SqfEntityFieldBase('is_done', DbType.bool,
+          defaultValue: false, isNotNull: false),
     ];
     super.init();
   }
@@ -126,14 +128,21 @@ class PotomoDB extends SqfEntityModelProvider {
 // BEGIN ENTITIES
 // region Task
 class Task {
-  Task({this.id, this.title, this.description, this.date, this.time_do_at}) {
+  Task(
+      {this.id,
+      this.title,
+      this.description,
+      this.date,
+      this.time_do_at,
+      this.is_done}) {
     _setDefaultValues();
   }
-  Task.withFields(this.title, this.description, this.date, this.time_do_at) {
+  Task.withFields(
+      this.title, this.description, this.date, this.time_do_at, this.is_done) {
     _setDefaultValues();
   }
-  Task.withId(
-      this.id, this.title, this.description, this.date, this.time_do_at) {
+  Task.withId(this.id, this.title, this.description, this.date, this.time_do_at,
+      this.is_done) {
     _setDefaultValues();
   }
   Task.fromMap(Map<String, dynamic> o, {bool setDefaultValues = true}) {
@@ -159,6 +168,9 @@ class Task {
               int.tryParse(o['time_do_at'].toString()))
           : DateTime.tryParse(o['time_do_at'].toString());
     }
+    if (o['is_done'] != null) {
+      is_done = o['is_done'] == 1 || o['is_done'] == true;
+    }
   }
   // FIELDS (Task)
   int id;
@@ -166,6 +178,7 @@ class Task {
   String description;
   DateTime date;
   DateTime time_do_at;
+  bool is_done;
 
   BoolResult saveResult;
   // end FIELDS (Task)
@@ -226,6 +239,10 @@ class Task {
           : forQuery ? time_do_at.millisecondsSinceEpoch : time_do_at;
     }
 
+    if (is_done != null) {
+      map['is_done'] = forQuery ? (is_done ? 1 : 0) : is_done;
+    }
+
     return map;
   }
 
@@ -259,6 +276,10 @@ class Task {
           : forQuery ? time_do_at.millisecondsSinceEpoch : time_do_at;
     }
 
+    if (is_done != null) {
+      map['is_done'] = forQuery ? (is_done ? 1 : 0) : is_done;
+    }
+
 // COLLECTIONS (Task)
     if (!forQuery) {
       map['Taskchecklists'] = await getTaskchecklists().toMapList();
@@ -283,7 +304,8 @@ class Task {
       title,
       description,
       date != null ? date.millisecondsSinceEpoch : null,
-      time_do_at != null ? time_do_at.millisecondsSinceEpoch : null
+      time_do_at != null ? time_do_at.millisecondsSinceEpoch : null,
+      is_done
     ];
   }
 
@@ -293,7 +315,8 @@ class Task {
       title,
       description,
       date != null ? date.millisecondsSinceEpoch : null,
-      time_do_at != null ? time_do_at.millisecondsSinceEpoch : null
+      time_do_at != null ? time_do_at.millisecondsSinceEpoch : null,
+      is_done
     ];
   }
 
@@ -436,7 +459,7 @@ class Task {
   ///
   /// Returns a <List<BoolResult>>
   static Future<List<dynamic>> saveAll(List<Task> tasks) async {
-    // final results = _mnTask.saveAll('INSERT OR REPLACE INTO tasks (id,title, description, date, time_do_at)  VALUES (?,?,?,?,?)',tasks);
+    // final results = _mnTask.saveAll('INSERT OR REPLACE INTO tasks (id,title, description, date, time_do_at, is_done)  VALUES (?,?,?,?,?,?)',tasks);
     // return results; removed in sqfentity_gen 1.3.0+6
     await PotomoDB().batchStart();
     for (final obj in tasks) {
@@ -459,13 +482,14 @@ class Task {
   Future<int> upsert() async {
     try {
       if (await _mnTask.rawInsert(
-              'INSERT OR REPLACE INTO tasks (id,title, description, date, time_do_at)  VALUES (?,?,?,?,?)',
+              'INSERT OR REPLACE INTO tasks (id,title, description, date, time_do_at, is_done)  VALUES (?,?,?,?,?,?)',
               [
                 id,
                 title,
                 description,
                 date != null ? date.millisecondsSinceEpoch : null,
-                time_do_at != null ? time_do_at.millisecondsSinceEpoch : null
+                time_do_at != null ? time_do_at.millisecondsSinceEpoch : null,
+                is_done
               ]) ==
           1) {
         saveResult = BoolResult(
@@ -490,7 +514,7 @@ class Task {
   /// Returns a BoolCommitResult
   Future<BoolCommitResult> upsertAll(List<Task> tasks) async {
     final results = await _mnTask.rawInsertAll(
-        'INSERT OR REPLACE INTO tasks (id,title, description, date, time_do_at)  VALUES (?,?,?,?,?)',
+        'INSERT OR REPLACE INTO tasks (id,title, description, date, time_do_at, is_done)  VALUES (?,?,?,?,?,?)',
         tasks);
     return results;
   }
@@ -536,7 +560,9 @@ class Task {
       ..qparams.distinct = true;
   }
 
-  void _setDefaultValues() {}
+  void _setDefaultValues() {
+    is_done = is_done ?? false;
+  }
   // END METHODS
   // CUSTOM CODES
   /*
@@ -968,6 +994,11 @@ class TaskFilterBuilder extends SearchCriteria {
     return _time_do_at = setField(_time_do_at, 'time_do_at', DbType.datetime);
   }
 
+  TaskField _is_done;
+  TaskField get is_done {
+    return _is_done = setField(_is_done, 'is_done', DbType.bool);
+  }
+
   bool _getIsDeleted;
 
   void _buildParameters() {
@@ -1318,6 +1349,12 @@ class TaskFields {
   static TableField get time_do_at {
     return _fTime_do_at = _fTime_do_at ??
         SqlSyntax.setField(_fTime_do_at, 'time_do_at', DbType.datetime);
+  }
+
+  static TableField _fIs_done;
+  static TableField get is_done {
+    return _fIs_done =
+        _fIs_done ?? SqlSyntax.setField(_fIs_done, 'is_done', DbType.bool);
   }
 }
 // endregion TaskFields

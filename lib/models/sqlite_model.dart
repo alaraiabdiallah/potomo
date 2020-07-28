@@ -21,7 +21,8 @@ const tableTasks = SqfEntityTable(
       SqfEntityField('title', DbType.text),
       SqfEntityField('description', DbType.text),
       SqfEntityField('date', DbType.date),
-      SqfEntityField('time_do_at', DbType.datetime)
+      SqfEntityField('time_do_at', DbType.datetime),
+      SqfEntityField('is_done', DbType.bool, defaultValue: false),
     ]
 );
 
