@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     onTimerPressed: (){
                       Navigator.of(context).push(CupertinoPageRoute(
-                          builder: (context) => TimerScreen()));
+                          builder: (context) => TimerScreen(data:e, onChange: _onTaskChanged,)));
                     },
                   );
                   return MapEntry(i, item);

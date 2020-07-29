@@ -300,6 +300,37 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                   await _task.save();
                   widget.onChange();
                 },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.white,),
+                onPressed: () async{
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context){
+                        return AlertDialog(
+                          title: Text(Str.ALERT),
+                          content: Text(Str.ALERT_DELETE),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text(Str.NO),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            FlatButton(
+                              child: Text(Str.YES),
+                              onPressed: () async {
+                                await _task.delete();
+                                widget.onChange();
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      }
+                  );
+                },
               )
             ]
           ],

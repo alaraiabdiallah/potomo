@@ -20,4 +20,12 @@ class Str{
   static final TIMER = "Timer";
   static final DONE = "Done";
   static final NO_TASK = "No Task";
+  static final START_WORK = "Start Work";
+  static final START_BREAK = "Take a little rest";
+  static final START_LONG_BREAK = "Take a long rest";
+  static final YES = "Yes";
+  static final NO = "No";
+  static final ALERT = "Alert!";
+  static final ALERT_DELETE = "Are you sure want to delete this task?";
+
 }

@@ -2,25 +2,46 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:potomo/models/sqlite_model.dart';
+import 'package:potomo/utils/str.dart';
+
+enum PomodoroState {
+  WORK,
+  BREAK,
+  LONG_BREAK
+}
+
+class PomodoroSecond{
+  static final WORK = 10;
+  static final BREAK = 5;
+  static final LONG_BREAK = 10;
+}
+
 
 class TimerScreen extends StatefulWidget {
+  final Task data;
+  final Function onChange;
+
+  const TimerScreen({Key key, this.data, this.onChange}) : super(key: key);
   @override
   _TimerScreenState createState() => _TimerScreenState();
 }
 
 class _TimerScreenState extends State<TimerScreen> {
 
-  int _seconds = 60;
+  PomodoroState _pomoState = PomodoroState.WORK;
+  int _round = 0;
+  int _seconds;
   int _tick = 0;
   Timer _timer;
   bool _isPause = false;
+  bool _isTicking = false;
 
   _secondToTimerString(int time){
     var hrs = (time / 3600).floor();
     var mins = ((time % 3600) / 60).floor();
     var secs = (time % 60).floor();
 
-    // Output like "1:01" or "4:03:59" or "123:03:59"
     var ret = "";
     if (hrs > 0) {
       ret += (hrs < 10 ? "0" : "") + hrs.toString() + ":" + (mins < 10 ? "0" : "");
@@ -32,18 +53,35 @@ class _TimerScreenState extends State<TimerScreen> {
     return ret;
   }
 
+  _onTimerStop() {
+    _isPause = true;
+    if(_round > 0){
+      switch(_pomoState){
+        case PomodoroState.WORK:
+          _seconds = _round % 4 == 0? PomodoroSecond.LONG_BREAK : PomodoroSecond.BREAK;
+          _pomoState = _round % 4 == 0? PomodoroState.LONG_BREAK :PomodoroState.BREAK;
+          break;
+        case PomodoroState.BREAK:
+          _seconds = PomodoroSecond.WORK;
+          _pomoState = PomodoroState.WORK;
+          break;
+        case PomodoroState.LONG_BREAK:
+          _seconds = PomodoroSecond.WORK;
+          _pomoState = PomodoroState.WORK;
+          break;
+      }
+    }
+    _tick = _seconds;
+    _isTicking = false;
+  }
+
   _onTick(Timer timer) {
     if(_tick < 1){
-      setState(() {
-        _isPause = true;
-        _tick = _seconds;
-      });
-
+      setState(_onTimerStop);
       timer.cancel();
     } else{
       setState(() => _tick -= 1);
     }
-
   }
 
   _startTimer(){
@@ -52,6 +90,7 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   void initState() {
+    _seconds = PomodoroSecond.WORK;
     _startTimer();
     super.initState();
   }
@@ -62,52 +101,90 @@ class _TimerScreenState extends State<TimerScreen> {
     super.dispose();
   }
 
+  _onStartButtonPressed(){
+    setState(() {
+      _timer.cancel();
+      _startTimer();
+      _isTicking = true;
+      if(_pomoState == PomodoroState.WORK)
+        _round += 1;
+    });
+  }
+
+  _onDone() async{
+    widget.data.is_done = widget.data.is_done? false: true;
+    await widget.data.save();
+    widget.onChange();
+    Navigator.of(context).pop();
+  }
+
+  _buildActionButton(){
+    String startText;
+    switch(_pomoState){
+      case PomodoroState.WORK:
+        startText = Str.START_WORK;
+        break;
+      case PomodoroState.BREAK:
+        startText = Str.START_BREAK;
+        break;
+      case PomodoroState.LONG_BREAK:
+        startText = Str.START_LONG_BREAK;
+        break;
+
+    }
+    return [
+      Row(
+        children: <Widget>[
+          Expanded(
+              child: RaisedButton(
+                child: Text(startText, style: TextStyle(color: Colors.white)),
+                onPressed: _isTicking?null:_onStartButtonPressed,
+                color: Theme.of(context).primaryColor,
+              )
+          ),
+          SizedBox(width: 10,),
+          if(_round > 0)...[
+            Expanded(
+              child: RaisedButton(
+                child: Text(Str.DONE, style: TextStyle(color: Colors.white),),
+                onPressed: _isTicking?null:_onDone,
+                color: Theme.of(context).primaryColor,
+              ),
+            )
+          ]
+        ],
+      )
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    var title = Str.TIMER;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Timer"),
+        title: Text(title),
         centerTitle: true,
       ),
-      body: Center(
+      body: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            Text("Lap ${(_round == 0?_round + 1: _round).toString()} of work",style: Theme.of(context).textTheme.headline5,),
+            SizedBox(height: 10,),
             CircularPercentIndicator(
-              radius: MediaQuery.of(context).size.width / 2,
-              lineWidth: 4.0,
+              radius: MediaQuery.of(context).size.width * (3/4),
+              lineWidth: 5.0,
               percent: (_tick/_seconds),
               center: Text(_secondToTimerString(_tick), style: TextStyle(
                 color: _tick < 1? Colors.grey : Theme.of(context).primaryColor,
-                fontSize: 32
+                fontSize: Theme.of(context).textTheme.headline2.fontSize
               ),),
               progressColor: Theme.of(context).primaryColor,
             ),
-            RaisedButton(child: Text("Start"), onPressed: (){
-              setState(() {
-                _tick = 60;
-                _timer.cancel();
-                _startTimer();
-              });
-            }),
-            RaisedButton(child: Text(_isPause? "Unpause" : "Pause"), onPressed: (){
-              if(!_isPause)
-                setState((){
-                  _isPause = true;
-                  _timer.cancel();
-                });
-              else
-                setState((){
-                  _isPause = false;
-                  _startTimer();
-                });
-            }),
-            RaisedButton(child: Text("Stop"), onPressed: (){
-              setState(() {
-                _tick = 0;
-                _timer.cancel();
-              });
-            }),
+            SizedBox(height: 10,),
+            ..._buildActionButton()
           ],
         ),
       )
