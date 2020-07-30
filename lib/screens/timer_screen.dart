@@ -12,9 +12,9 @@ enum PomodoroState {
 }
 
 class PomodoroSecond{
-  static final WORK = 10;
-  static final BREAK = 5;
-  static final LONG_BREAK = 10;
+  static final WORK = 1500;
+  static final BREAK = 300;
+  static final LONG_BREAK = 1500;
 }
 
 

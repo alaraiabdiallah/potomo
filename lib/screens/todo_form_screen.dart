@@ -161,7 +161,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                   ),
                   readOnly: true,
                   onTap: _viewMode? null : _onDoAtFieldPressed,
-                  enabled: _viewMode,
+                  enabled: !_viewMode,
                 ),
               ),
               if(_todoTimeDoAtTxtCtrl.text.isNotEmpty)...[
@@ -178,11 +178,14 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
     );
   }
 
-  _onChecklistDelete(int i,Taskchecklist data){
+  _onChecklistDelete(int i,Taskchecklist data) async{
     setState(() {
       _editIndex = null;
       _checklists.removeAt(i);
     });
+    if(_task != null){
+      await data.delete();
+    }
   }
   _onCheck(int i,Taskchecklist data) async {
     setState(() {
@@ -209,8 +212,11 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
       isEdit: index == _editIndex,
       onSelect: _onSelectCheck,
       onSave: (int i,Taskchecklist data){
-        print(i);
-        setState(() => _editIndex = null);
+        setState(() {
+          _editIndex = null;
+          _checklists[i] = data;
+        });
+
       },
       onDelete: _onChecklistDelete,
       onCheck: _viewMode? _onCheck : null,
@@ -223,18 +229,21 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
       child: ListView(
         children: <Widget>[
             ..._checklists.asMap().map((i,e) => MapEntry(i, _todoCheckListItem(i,e))).values.toList(),
-            RaisedButton(
+            if(!_viewMode)...[
+              RaisedButton(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 onPressed: _editIndex != null ? null: (){
                   setState(() {
                     _checklists.add(Taskchecklist(name: ""));
                     _editIndex = _checklists.length - 1;
-                    _editFocus.requestFocus(); 
+                    _editFocus.requestFocus();
                   });
                 },
                 color: Colors.red,
                 child: Text(Str.ADD_CHECKLIST, style: TextStyle(color: Colors.white),),
-            )
+              )
+            ]
+
         ],
       ),
     );
@@ -248,18 +257,16 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
       time_do_at: _todoTimeDoAt
     );
     if(_task != null) task.id = _task.id;
-
     int taskId = await task.save();
-    if(_task == null){
-      List<Future> concurr = _checklists.map((e){
-        e.tasksId = taskId;
-        return e;
-      })
-      .map((e) async => await e.save())
-      .toList();
-      
-      await Future.wait(concurr);
-    }
+
+    List<Future> concurr = _checklists.map((e){
+      e.tasksId = taskId;
+      return e;
+    })
+        .map((e) async => await e.save())
+        .toList();
+
+    await Future.wait(concurr);
     
   }
 

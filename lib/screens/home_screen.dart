@@ -152,12 +152,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.black,
                                         fontWeight: FontWeight.w600)),
                           ),
-                          OutlineButton(
-                            onPressed: () {},
-                            child: Text(Str.MORE),
-                            textColor: Colors.red,
-                            borderSide: BorderSide(color: Colors.red),
-                          )
+//                          OutlineButton(
+//                            onPressed: () {},
+//                            child: Text(Str.MORE),
+//                            textColor: Colors.red,
+//                            borderSide: BorderSide(color: Colors.red),
+//                          )
                         ],
                       ),
                     ),
